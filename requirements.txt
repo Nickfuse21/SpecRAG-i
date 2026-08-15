@@ -1,0 +1,40 @@
+# ---------------------------------------------------------------------------
+# IMPORTANT — install PyTorch with CUDA FIRST, before this file:
+#
+#   pip install torch --index-url https://download.pytorch.org/whl/cu121
+#
+# Then:  pip install -r requirements.txt
+# Verify GPU:  python -c "import torch; print(torch.cuda.is_available())"
+# ---------------------------------------------------------------------------
+
+# --- ingestion ---
+requests>=2.32
+beautifulsoup4>=4.12
+lxml>=5.2
+python-docx>=1.1
+tqdm>=4.66
+
+# --- config ---
+python-dotenv>=1.0
+pydantic>=2.7
+pydantic-settings>=2.3
+
+# --- embeddings / reranking (GPU) ---
+sentence-transformers>=3.0
+transformers>=4.41
+
+# --- indexing ---
+chromadb>=0.5.5
+rank-bm25>=0.2.2
+
+# --- generation ---
+google-genai>=0.3.0
+
+# --- serving ---
+fastapi>=0.111
+uvicorn[standard]>=0.30
+sse-starlette>=2.1
+streamlit>=1.36
+
+# --- tokenisation for chunk budgeting ---
+tiktoken>=0.7

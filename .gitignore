@@ -1,0 +1,24 @@
+.env
+venv/
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+
+# data — large, regenerable, never commit
+data/raw/*
+data/docx/*
+data/parsed/*
+data/chunks/*
+data/index/*
+!data/**/.gitkeep
+!data/raw/manifest.tsv
+
+# model caches
+.cache/
+*.onnx
+
+.vscode/
+.idea/
+.DS_Store
