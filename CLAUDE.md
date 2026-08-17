@@ -131,25 +131,43 @@ Done and validated:
 | Groundedness verification | `src/verification/groundedness.py` |
 | FastAPI | `src/api/main.py` |
 | Streamlit UI | `src/ui/app.py` |
+| Retry/backoff for Gemini | `src/llm_retry.py` |
+| Gold set (55 answerable + 22 not) | `eval/gold.jsonl` |
+| Gate calibration | `eval/calibrate.py` |
+| Ablation harness | `eval/run_eval.py` |
+| Demo run-through | `demo.py` |
 
-Corpus: 15 specs, 6,367 clauses, ~4.7M tokens → 9,476 chunks.
+Corpus: 15 specs, 6,367 clauses, 4.94M tokens → **9,577 chunks**, 0 orphaned
+conditions. Indexed: 9,577 dense vectors + BM25 over 53,134 terms.
+
+## Findings from the calibration and eval pass
+
+Three things that were wrong and are worth being able to explain:
+
+1. **The gate had never fired.** `RERANK_SCORE_THRESHOLD = 0.0` assumed the
+   reranker returns signed logits. It returns SIGMOID outputs in [0, 1], so
+   `best < 0.0` was never true. Control #2 — the one the whole design leans on
+   — was inert, and nothing surfaced it because the system still answered.
+   Fitted to **0.90**: refuses 77% of unanswerable questions, 4% of answerable.
+2. **fp16 is load-bearing on this GPU**, not a nicety. See the GPU section.
+3. **The cross-encoder barely improves ranking** (+1.9pts MRR, +0.1pt nDCG) at
+   ~40x the latency. Do not defend it on retrieval metrics; defend it on the
+   fact that it produces the score the gate needs. There is no gate without it.
+
+Also: `gemini-2.5-flash` now 404s for keys that had not already used it, and
+`gemini-3.5-flash` served only 2/4 requests under free-tier load (503 + 429).
+`GEN_MODEL` is `gemini-3.5-flash-lite` (4/4 at 1.3s) and `UTIL_MODEL` is a
+DIFFERENT model on purpose — a judge should not be grading its own generator.
 
 ## What's left
 
-1. **Unblock the GPU** (above), then run the index build.
-2. `python -m src.ingest.chunk` currently reports **13 orphaned nested
-   lines** across the full 15-spec corpus. The updated `chunk.py` prints the
-   offending chunk ids and lines. Diagnose and fix — this is invariant #2.
-3. **Calibrate `RERANK_SCORE_THRESHOLD`.** Build a gold set including
-   deliberately out-of-scope questions, plot max-rerank-score distributions
-   for answerable vs unanswerable, and cut where they separate. Until this
-   is done the gate works but its number cannot be defended.
-4. **Eval harness + ablation table**: Recall@k, MRR, nDCG, faithfulness,
-   hallucination rate, correct-refusal rate. Ablations:
-   naive → +hybrid → +rerank → +gate → +verification. This is the main
-   evidence for the "quality and effectiveness" criterion.
-5. **README** with architecture, design rationale, results table, and setup.
-6. Demo run-through.
+1. **Answer ablation** (`python -m eval.run_eval --answers`) — retrieval arms
+   are done and in the README; the gate/verification arms need a clean run.
+2. **README results section** — fill in the answer table once (1) lands.
+3. **Demo** — `python demo.py` walks four questions, one per stopping point.
+4. Optional: the 2 answerable questions the gate now refuses are the price of
+   the 10% budget. If that matters, re-run `eval/calibrate.py
+   --max-false-refusal 0.02` and take the weaker gate knowingly.
 
 ## Run order
 

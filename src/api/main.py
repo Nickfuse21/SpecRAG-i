@@ -96,7 +96,12 @@ async def ask(req: AskRequest) -> AskResponse:
     timings: dict[str, float] = {}
 
     t = time.time()
-    res = await run_in_threadpool(STATE["retriever"].retrieve, req.question)
+    # top_k is passed through, not ignored: the request model advertised it
+    # from the start, and an API that silently drops a parameter it documents
+    # is worse than one that never offered it.
+    res = await run_in_threadpool(
+        STATE["retriever"].retrieve, req.question, False, req.top_k
+    )
     timings["retrieve"] = round((time.time() - t) * 1000)
 
     sources = [

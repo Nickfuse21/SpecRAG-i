@@ -163,8 +163,20 @@ RERANK_SCORE_THRESHOLD = 0.90  # set by eval/calibrate.py — see eval/calibrati
 # 2.5-flash was the original choice and now returns 404 for keys that had not
 # already used it ("no longer available to new users"), which is worth knowing
 # before a demo: these names expire. Check with `client.models.list()`.
-GEN_MODEL = "gemini-3.5-flash"
-UTIL_MODEL = "gemini-3.5-flash-lite"   # query rewriting + verification judge
+# Flash-lite rather than flash, measured not assumed: on this key `flash` served
+# 2/4 requests at 12.9 s each (503 UNAVAILABLE, then 429 RESOURCE_EXHAUSTED)
+# while `flash-lite` served 4/4 at 1.3 s. A more capable model that is not
+# available is worth less than a smaller one that is, and this task leans on the
+# prompt rather than on model world-knowledge — the job is to read the passages
+# it was handed and report what they say, with refusing an allowed outcome.
+GEN_MODEL = "gemini-3.5-flash-lite"
+
+# Deliberately NOT the same model as GEN_MODEL. The LLM judge exists to catch
+# claims the generator got wrong, and a model grading its own output shares the
+# blind spot that produced the error — it will happily confirm its own
+# misreading of a conditional. A different model fails differently, which is the
+# entire reason for having two judges and taking the minimum.
+UTIL_MODEL = "gemini-3.1-flash-lite"   # query rewriting + verification judge
 
 # Transient-failure budget for the hosted model (see src/llm_retry.py). Four
 # attempts with a 2s base backs off 2s, 4s, 8s — enough to ride out a 503
