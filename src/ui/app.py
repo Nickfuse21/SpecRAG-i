@@ -16,8 +16,8 @@ handle.)
 
 What this UI is actually for
 ----------------------------
-Not decoration. The assessment is judged on trustworthiness, so the
-interface has to make the system's reasoning inspectable: which passages
+Not decoration. Trustworthiness is the whole point of this system, so the
+interface has to make its reasoning inspectable: which passages
 were retrieved, what the reranker scored them, where the answer stopped if
 it stopped, and how each claim scored on groundedness. A refusal with the
 closest passages shown is a MORE useful output than a confident guess, and

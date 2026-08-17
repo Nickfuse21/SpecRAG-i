@@ -14,8 +14,8 @@ hang under trivial load, and nothing in the logs says why.
 Two correct options. Either declare the handler `def` (not `async def`) and
 let Starlette run it in its threadpool automatically, or keep it `async def`
 and push the blocking work through `run_in_threadpool`. This file does the
-second, explicitly, because the explicit version is the one you can point at
-in an interview.
+second, explicitly, because naming the threadpool at the call site documents
+the constraint where someone editing the handler will actually see it.
 
 Models are loaded ONCE at startup, not per request. Loading bge-m3 takes
 several seconds; doing that per request would dominate latency completely.

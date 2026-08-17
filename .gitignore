@@ -29,3 +29,7 @@ eval/answer_details.json
 # regenerated on every eval run; the authoritative table lives in README.md
 eval/results.json
 eval/results.md
+
+# local working notes — kept out of the published tree
+CLAUDE.md
+docs/

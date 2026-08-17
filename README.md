@@ -154,8 +154,8 @@ gain on this set: 96.4% → 85.5% → 43.6%. The honest reading of each:
   because it is inconvenient is how these systems rot, and the contradiction veto
   is correct when the judge is trustworthy. The defensible change is to make the
   veto conditional on the LLM judge — which can read this register — rather than
-  on the NLI model, and that needs validating on a larger set than a deadline
-  allowed. It is written down here rather than quietly tuned away.
+  on the NLI model, and that needs validating on a larger evaluation set than
+  the one here. It is written down rather than quietly tuned away.
 
 An earlier version of arm E measured **18.2%** coverage. That was a bug, not a
 result: `verify()` gated the whole answer on the MEAN claim score, and with a
@@ -269,8 +269,9 @@ python -m src.index.embedder --self-test
 for every stage, the two checks that gate an index build, and a troubleshooting
 table. It is deliberately the only place those commands live.
 
-Design rationale in depth: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** ·
-background handbook: **[docs/CONCEPTS.md](docs/CONCEPTS.md)**
+Design rationale lives in the code: every module's docstring explains *why* it
+is built the way it is and what breaks otherwise. `src/config.py` holds every
+tunable in one file, with the reasoning for each value beside it.
 
 
 ## Project layout
