@@ -1,6 +1,8 @@
-# Setup — run these once
+# Setup and run — the single source of truth
 
-Windows, PowerShell, from inside the `rag3gpp` folder.
+Windows, PowerShell, from inside the `rag3gpp` folder. README.md and CLAUDE.md
+both point here rather than repeating these commands, because three copies of
+the same instructions is three things to keep in sync and they will drift.
 
 ## 1. Virtual environment
 
@@ -8,6 +10,14 @@ Windows, PowerShell, from inside the `rag3gpp` folder.
 python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
+
+> **On the original dev machine the venv is one level UP**, at
+> `RAG project\venv`, not inside `rag3gpp\`. That is a historical accident, and
+> it is why `python -m src.ingest.download` fails with
+> `No module named 'src'` if you run it from the parent folder: the venv is
+> there but the package is here. Either activate `..\venv\Scripts\Activate.ps1`
+> and `cd` into `rag3gpp`, or create a fresh venv here as above. Every command
+> in this file assumes the working directory is `rag3gpp\`.
 
 If PowerShell blocks the activate script:
 
@@ -62,28 +72,62 @@ SOFFICE_PATH=C:\Program Files\LibreOffice\program\soffice.exe
 
 ---
 
-# Run the ingestion so far
+# Run order
+
+Every module runs standalone with `python -m` and has a self-check or
+`--sample` / `--explain` mode. Verify each stage before building the next on
+it — a metadata bug found after 15 minutes of embedding costs 15 minutes.
+
+## Offline: corpus → index
 
 ```powershell
-# one spec first, to prove the plumbing works end to end
-python -m src.ingest.download --spec 38.331
+python -m src.ingest.download --spec 38.331   # one spec first, proves the plumbing
+python -m src.ingest.download                 # then the full Rel-18 corpus
+python -m src.ingest.convert                  # normalise .doc -> .docx
+python -m src.ingest.parse_docx               # clause-tree JSONL
+python -m src.ingest.chunk                    # must report 0 orphaned conditions
 
-# then the rest
-python -m src.ingest.download
-
-# normalise any .doc files to .docx
-python -m src.ingest.convert
+python -m src.index.embedder --self-test      # proves GPU + fp16 + query prefix
+python -m src.index.build --limit 200 --reset # smoke test
+python -m src.index.build --reset             # full run, ~15 min on GPU
+python -m src.index.bm25_store --build
 ```
 
-## What you should see
+### Two gates you must not skip
 
-`data/raw/` fills with `.zip` files, `data/docx/` with `.docx`, and
-`data/raw/manifest.tsv` lists exactly which version of each spec you pinned.
+**`src.ingest.chunk` must report 0 orphaned conditions.** An orphan is a nested
+`shall` that lost the `if` above it, which reads as an unconditional
+requirement and is the most dangerous thing this corpus can produce. Do not
+build an index on output that reports any.
 
-**Open that manifest and check it.** Every row should say `Rel-18`. If any row
-shows a different release, that spec has no Rel-18 version published and the
-downloader fell back to the newest available — which breaks version pinning
-(Control #1). Tell me which spec and we'll decide whether to drop it.
+**Every row of `data/raw/manifest.tsv` must say `Rel-18`.** A row that doesn't
+means that spec has no Rel-18 version published and the downloader fell back to
+the newest available, which silently breaks version pinning (Control #1).
+
+## Online
+
+```powershell
+python -m src.retrieval.pipeline --query "When does the UE trigger T310?" --explain
+python -m src.generation.answer --query "..."
+python -m src.verification.groundedness --query "..."
+
+python -m src.demo                            # all four controls, one per question
+
+uvicorn src.api.main:app --port 8000
+streamlit run src/ui/app.py
+```
+
+## Evaluation
+
+```powershell
+python -m eval.calibrate                      # fit the relevance-gate threshold
+python -m eval.run_eval --retrieval           # ablation, GPU only, no API calls
+python -m eval.run_eval --answers             # ablation, calls Gemini
+python -m eval.run_eval --all
+```
+
+Re-run `eval.calibrate` after any change to the retriever, the reranker, or the
+`*_FP16` flags — all of them move `RERANK_SCORE_THRESHOLD`.
 
 ## If something breaks
 

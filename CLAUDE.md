@@ -18,8 +18,9 @@ not *what*. Do not strip those comments. They are a deliverable.
 ## Environment
 
 - Windows, PowerShell, project at `...\Desktop\RAG project\rag3gpp`
-- Python venv at `venv\` — **activate before anything**:
-  `.\venv\Scripts\Activate.ps1`
+- Python venv is at `RAG project\venv` — one level ABOVE the package, not
+  inside it. Activate it, then `cd rag3gpp` before running anything; from the
+  parent folder you get `No module named 'src'`. See SETUP.md.
 - NVIDIA GPU present. The whole pipeline assumes CUDA.
 - Gemini API key in `.env` (`GEMINI_API_KEY=`). Never commit `.env`.
 - LibreOffice for `.doc` → `.docx` (already done; all 15 specs are `.docx`)
@@ -71,11 +72,15 @@ question -> query understanding -> dense + BM25 -> RRF -> cross-encoder rerank
    was actually pinned.
 
 2. **Relevance gate** (`src/retrieval/pipeline.py`). If the best rerank score
-   is below `RERANK_SCORE_THRESHOLD`, refuse **before calling the LLM**. This
-   is the only control that makes a wrong answer impossible rather than
-   detectable — a model that is never asked cannot invent anything.
-   `RERANK_SCORE_THRESHOLD = 0.0` is a **PLACEHOLDER and must be calibrated**
-   on the eval set. See "What's left".
+   is below `RERANK_SCORE_THRESHOLD`, refuse **before calling the LLM**. It is
+   the only control that prevents a wrong answer rather than detecting one — a
+   model that is never asked cannot invent anything — and the only one that
+   does not depend on the model cooperating.
+   **Now calibrated to 0.90** (`eval/calibrate.py`, see Findings). Note the
+   honest caveat from the ablation: on this gold set the gate did not reduce
+   the hallucination rate, because control #3's explicit `answerable: false`
+   field already refused every out-of-scope question. The gate's measured value
+   here is that it does so without an LLM call and without trusting the model.
 
 3. **Citation validity** (`src/generation/answer.py`). Passages are numbered
    `[1]..[n]` and the model may only emit integers. Citation strings are
@@ -135,7 +140,7 @@ Done and validated:
 | Gold set (55 answerable + 22 not) | `eval/gold.jsonl` |
 | Gate calibration | `eval/calibrate.py` |
 | Ablation harness | `eval/run_eval.py` |
-| Demo run-through | `demo.py` |
+| Demo run-through | `src/demo.py` |
 
 Corpus: 15 specs, 6,367 clauses, 4.94M tokens → **9,577 chunks**, 0 orphaned
 conditions. Indexed: 9,577 dense vectors + BM25 over 53,134 terms.
@@ -164,33 +169,18 @@ DIFFERENT model on purpose — a judge should not be grading its own generator.
 1. **Answer ablation** (`python -m eval.run_eval --answers`) — retrieval arms
    are done and in the README; the gate/verification arms need a clean run.
 2. **README results section** — fill in the answer table once (1) lands.
-3. **Demo** — `python demo.py` walks four questions, one per stopping point.
+3. **Demo** — `python -m src.demo` walks four questions, one per stopping point.
 4. Optional: the 2 answerable questions the gate now refuses are the price of
    the 10% budget. If that matters, re-run `eval/calibrate.py
    --max-false-refusal 0.02` and take the weaker gate knowingly.
 
 ## Run order
 
-```powershell
-.\venv\Scripts\Activate.ps1
+See **[SETUP.md](SETUP.md)** — it is the single source of truth for every
+command. It used to be duplicated here and in README.md, and the three copies
+drifted: this file still described a torch+cpu blocker after it was fixed, and
+README.md still called the whole pipeline "scaffolded" after it was built.
 
-python -m src.ingest.download          # done
-python -m src.ingest.convert           # done
-python -m src.ingest.parse_docx        # done
-python -m src.ingest.chunk             # re-run, must show 0 orphans
-
-python -m src.index.embedder --self-test
-python -m src.index.build --limit 200 --reset   # smoke test
-python -m src.index.build --reset               # full, 10-30 min on GPU
-python -m src.index.bm25_store --build
-
-python -m src.retrieval.pipeline --query "When does the UE trigger T310?" --explain
-python -m src.generation.answer --query "..."
-python -m src.verification.groundedness --query "..."
-
-uvicorn src.api.main:app --port 8000
-streamlit run src/ui/app.py
-```
 
 ## Conventions
 

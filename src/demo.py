@@ -22,8 +22,8 @@ catch by construction, and it is where controls #3 and #4 earn their place.
 
 Usage
 -----
-    python demo.py
-    python demo.py --query "your own question"
+    python -m src.demo
+    python -m src.demo --query "your own question"
 """
 from __future__ import annotations
 
@@ -32,7 +32,7 @@ import sys
 import time
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from src.config import RERANK_SCORE_THRESHOLD, TARGET_RELEASE  # noqa: E402
 
 DEMO = [

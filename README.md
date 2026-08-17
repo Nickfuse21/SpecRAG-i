@@ -147,67 +147,24 @@ controls #3 and #4 downstream.
 
 ## Quick start
 
-> Windows / PowerShell, from inside `rag3gpp/`. GPU (CUDA) is required — embedding this corpus on CPU is impractically slow.
+GPU (CUDA) required — embedding this corpus on CPU is impractically slow.
 
 ```powershell
-# 1. Virtual environment
-python -m venv venv
-.\venv\Scripts\Activate.ps1
-
-# 2. PyTorch with CUDA — before everything else, or you'll silently get a CPU build
-pip install torch --index-url https://download.pytorch.org/whl/cu121
-python -c "import torch; print(torch.cuda.is_available())"   # must print True
-
-# 3. Everything else
+cd rag3gpp
+python -m venv venv; .env\Scripts\Activate.ps1
+pip install torch --index-url https://download.pytorch.org/whl/cu126
 pip install -r requirements.txt
-
-# 4. API key
-copy .env.example .env
-# open .env, paste your Gemini key from https://aistudio.google.com/apikey
-
-# 5. LibreOffice (for legacy .doc -> .docx conversion)
-# https://www.libreoffice.org/download
+copy .env.example .env        # then paste your Gemini key
+python -m src.index.embedder --self-test
 ```
 
-Full walkthrough, troubleshooting table, and what to expect at each step: [SETUP.md](SETUP.md).
+**[SETUP.md](SETUP.md) is the full reference** — install, the complete run order
+for every stage, the two checks that gate an index build, and a troubleshooting
+table. It is deliberately the only place those commands live.
 
-### Run the pipeline
+Design rationale in depth: **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** ·
+background handbook: **[docs/CONCEPTS.md](docs/CONCEPTS.md)**
 
-Every module runs standalone with `python -m` and has a self-check, so each
-stage can be verified before the next is built on it.
-
-```powershell
-# --- offline: corpus -> index ---
-python -m src.ingest.download --spec 38.331   # one spec first, to prove the plumbing
-python -m src.ingest.download                 # then the full Rel-18 corpus
-python -m src.ingest.convert                  # normalise any .doc -> .docx
-python -m src.ingest.parse_docx               # clause-tree JSONL
-python -m src.ingest.chunk                    # must report 0 orphaned conditions
-
-python -m src.index.embedder --self-test      # proves GPU + fp16 + query prefix
-python -m src.index.build --limit 200 --reset # smoke test
-python -m src.index.build --reset             # full run, ~15 min on GPU
-python -m src.index.bm25_store --build
-
-# --- online ---
-python -m src.retrieval.pipeline --query "When does the UE trigger T310?" --explain
-python -m src.generation.answer --query "..."
-python -m src.verification.groundedness --query "..."
-
-uvicorn src.api.main:app --port 8000
-streamlit run src/ui/app.py
-
-# --- evaluation ---
-python -m eval.calibrate                      # fit the relevance-gate threshold
-python -m eval.run_eval --retrieval           # ablation, GPU only, no API calls
-python -m eval.run_eval --answers             # ablation, calls Gemini
-```
-
-Two checks that gate the rest: `src.ingest.chunk` must report **0 orphaned
-conditions** before you build an index on it, and every row of
-`data/raw/manifest.tsv` must say `Rel-18`. A row that doesn't means that spec
-has no Rel-18 version published and the downloader fell back to the newest
-available, which silently breaks version pinning.
 
 ## Project layout
 

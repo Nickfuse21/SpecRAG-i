@@ -41,7 +41,9 @@ gold citation rate  Of the answerable questions we answered, how often at
                     part of the corpus — right shape, wrong source.
 
 faithfulness        Mean groundedness score over answered questions (arm E
-                    only, since it is the verifier's own output).
+                    only, since it is the verifier's own output). Measured with
+                    the NLI judge by default — see run_answers() for why that
+                    is the honest default rather than the stronger one.
 
 Usage
 -----
@@ -49,6 +51,7 @@ Usage
     python -m eval.run_eval --answers            # calls Gemini
     python -m eval.run_eval --all
     python -m eval.run_eval --answers --limit 20 # quick pass while iterating
+    python -m eval.run_eval --answers --judge both   # needs API quota; slow
 """
 from __future__ import annotations
 
@@ -183,7 +186,25 @@ ANSWER_ARMS = [
 ]
 
 
-def run_answers(rows: list[dict], limit: int | None) -> list[dict]:
+def run_answers(rows: list[dict], limit: int | None, judge: str = "nli",
+                only: set[str] | None = None) -> list[dict]:
+    """
+    `judge` defaults to "nli", not "both", for two reasons.
+
+    The measurement reason: `src/api/main.py` builds `Verifier(judge="nli")`, so
+    NLI-only is what the served system actually does. Evaluating with a stronger
+    verifier than production runs would report a hallucination rate nobody gets.
+
+    The practical reason: the LLM judge costs one API call per claim per cited
+    passage, which is hundreds of calls across 77 questions x 3 arms. On a
+    free-tier key that returns 429 RESOURCE_EXHAUSTED partway through, and
+    because a judge that could not run scores 0.0, the failures do not show up
+    as errors — they show up as claims that look ungrounded. That silently
+    understates coverage and faithfulness, which is worse than not measuring it.
+
+    Use `--judge both` deliberately, on a key with quota, and expect it to be
+    slow. `src/demo.py` uses both, since it makes a handful of calls.
+    """
     from src.generation.answer import Generator
     from src.retrieval.pipeline import Retriever
     from src.verification.groundedness import Verifier, apply
@@ -198,7 +219,7 @@ def run_answers(rows: list[dict], limit: int | None) -> list[dict]:
     print(f"\nanswer ablation over {n_ans} answerable + {n_una} unanswerable\n")
 
     gen = Generator()
-    verifier = Verifier(judge="both")
+    verifier = Verifier(judge=judge)
     out, details = [], []
 
     # One Retriever for all three arms, with the gate toggled between them.
@@ -210,6 +231,12 @@ def run_answers(rows: list[dict], limit: int | None) -> list[dict]:
     r = Retriever(use_gate=True)
 
     for name, cfg in ANSWER_ARMS:
+        # `only` exists because arm E is the expensive one: arms C and D make a
+        # single generation call per question, E adds a judge call per claim per
+        # cited passage. Re-running all three to fix E wastes ~30 minutes of
+        # quota on two arms whose numbers did not change.
+        if only and name.split()[0] not in only:
+            continue
         r.use_gate = cfg["gate"]
         stats = {"answered_unanswerable": 0, "answered_answerable": 0,
                  "gold_cited": 0, "faith": [], "refused_by_gate": 0,
@@ -304,6 +331,10 @@ def main() -> int:
     ap.add_argument("--all", action="store_true")
     ap.add_argument("--limit", type=int, default=None,
                     help="answers arm only: use a subset while iterating")
+    ap.add_argument("--arms", default=None,
+                    help="answers arm only: comma-separated subset, e.g. --arms E")
+    ap.add_argument("--judge", default="nli", choices=["nli", "llm", "both"],
+                    help="verification judge for arm E; default nli, which is what the API serves")
     args = ap.parse_args()
 
     if not (args.retrieval or args.answers or args.all):
@@ -313,7 +344,9 @@ def main() -> int:
     rows = load_gold()
 
     retrieval = run_retrieval(rows) if (args.retrieval or args.all) else []
-    answers = run_answers(rows, args.limit) if (args.answers or args.all) else []
+    only = {a.strip().upper() for a in args.arms.split(",")} if args.arms else None
+    answers = (run_answers(rows, args.limit, args.judge, only)
+               if (args.answers or args.all) else [])
 
     report = {"retrieval": retrieval, "answers": answers}
     (EVAL_DIR / "results.json").write_text(json.dumps(report, indent=2), encoding="utf-8")
