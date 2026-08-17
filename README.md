@@ -8,8 +8,8 @@ Ask a question about NR RRC procedures, 5G security, or NAS signaling and get an
   <img alt="Python" src="https://img.shields.io/badge/python-3.11-3776AB?logo=python&logoColor=white">
   <img alt="PyTorch" src="https://img.shields.io/badge/PyTorch-CUDA-EE4C2C?logo=pytorch&logoColor=white">
   <img alt="ChromaDB" src="https://img.shields.io/badge/index-ChromaDB%20%2B%20BM25-6E56CF">
-  <img alt="Gemini" src="https://img.shields.io/badge/generation-Gemini%202.5-4285F4?logo=googlegemini&logoColor=white">
-  <img alt="status" src="https://img.shields.io/badge/status-ingestion%20complete-yellow">
+  <img alt="Gemini" src="https://img.shields.io/badge/generation-Gemini%203.5%20Flash-4285F4?logo=googlegemini&logoColor=white">
+  <img alt="status" src="https://img.shields.io/badge/corpus-9%2C577%20chunks%20%C2%B7%20Rel--18-2f9e44">
 </p>
 
 ---
@@ -39,32 +39,85 @@ flowchart LR
     E --> G[(BM25<br/>sparse)]
     F --> H[RRF fusion<br/>+ rerank]
     G --> H
-    H -->|relevance gate| I[Gemini 2.5<br/>generation]
+    H -->|relevance gate| I[Gemini 3.5 Flash<br/>generation]
     I --> J[NLI<br/>verification]
     J --> K[Grounded / Partial /<br/>Refused answer]
 
     classDef done fill:#2f9e44,stroke:#2f9e44,color:#fff
-    classDef planned fill:#495057,stroke:#495057,color:#fff,stroke-dasharray: 3 3
-    class A,B,C,D done
-    class E,F,G,H,I,J,K planned
+    class A,B,C,D,E,F,G,H,I,J,K done
 ```
 
-<sub>🟢 solid = implemented and tested against real spec files &nbsp;&nbsp;·&nbsp;&nbsp; ⬛ dashed = scaffolded, not yet built</sub>
-
 ## Status
+
+The full pipeline is built and the index is live: **9,577 chunks / 4.94M tokens
+across 15 Release-18 specs**, embedded with bge-m3 and indexed in both ChromaDB
+and BM25.
 
 | Stage | Module | State |
 |---|---|---|
 | Download + version pin | `src/ingest/download.py` | ✅ Done |
 | `.doc` → `.docx` normalization | `src/ingest/convert.py` | ✅ Done |
 | Clause-tree parsing | `src/ingest/parse_docx.py` | ✅ Done |
-| Chunking | `src/index/` | ⬜ Scaffolded |
-| Dense + BM25 indexing | `src/index/` | ⬜ Scaffolded |
-| Retrieval (fusion + rerank) | `src/retrieval/` | ⬜ Scaffolded |
-| Generation (Gemini) | `src/generation/` | ⬜ Scaffolded |
-| Verification (NLI grading) | `src/verification/` | ⬜ Scaffolded |
-| API (FastAPI) | `src/api/` | ⬜ Scaffolded |
-| UI (Streamlit) | `src/ui/` | ⬜ Scaffolded |
+| Structure-aware chunking | `src/ingest/chunk.py` | ✅ Done — 0 orphaned conditions |
+| Dense index (bge-m3 → ChromaDB) | `src/index/` | ✅ Done — 9,577 vectors |
+| Sparse index (BM25, hand-rolled) | `src/index/bm25_store.py` | ✅ Done — 53,134 terms |
+| Retrieval (RRF fusion + rerank) | `src/retrieval/` | ✅ Done |
+| Generation (Gemini) | `src/generation/answer.py` | ✅ Done |
+| Verification (NLI + LLM judge) | `src/verification/` | ✅ Done |
+| API (FastAPI) | `src/api/main.py` | ✅ Done |
+| UI (Streamlit) | `src/ui/app.py` | ✅ Done |
+| Gate calibration | `eval/calibrate.py` | ✅ Done — threshold fitted |
+| Ablation study | `eval/run_eval.py` | 🟡 Retrieval done; answer arms pending |
+
+## Results
+
+### Retrieval ablation (55 answerable questions)
+
+Each arm is the real pipeline with stages switched off, not a re-implementation
+— `Retriever()` takes the ablation flags directly, so an arm cannot accidentally
+flatter itself.
+
+| Arm | Recall@6 | Recall@20 | MRR@20 | nDCG@6 | s/query |
+|---|---|---|---|---|---|
+| A — dense only | 0.818 | 0.945 | 0.588 | 0.635 | 0.05 |
+| B — + hybrid (BM25 + RRF) | 0.855 | **0.927** | 0.660 | 0.703 | 0.04 |
+| C — + cross-encoder rerank | 0.855 | 0.927 | **0.679** | 0.704 | 1.74 |
+
+Read honestly, this table says three things, and only the first is flattering:
+
+- **Hybrid retrieval earns its place.** Recall@6 +3.7pts, MRR +7.2pts, nDCG
+  +6.8pts, at no measurable latency cost. Exact-term matching is worth a lot in
+  a corpus this full of acronyms and IE names.
+- **Hybrid also *costs* recall deeper in the list** — Recall@20 drops from 0.945
+  to 0.927. RRF pulls BM25 hits into the candidate pool that displace dense hits
+  which were further down but still correct. Better at the top, slightly worse
+  at the tail.
+- **The cross-encoder barely moves retrieval metrics** (+1.9pts MRR, +0.1pt
+  nDCG) while costing ~40× the latency. Its real justification in this system is
+  not ranking — it is that it produces the score the relevance gate needs. There
+  is no gate without it.
+
+### Gate calibration
+
+`RERANK_SCORE_THRESHOLD` was a placeholder of `0.0`. Calibration found that the
+reranker emits **sigmoid outputs in [0, 1]**, not the signed logits the code
+assumed — so `score < 0.0` was never true and **the gate had never fired once**.
+
+Fitted on the 77-question gold set (`eval/calibrate.py`), maximising
+correct-refusal subject to a 10% false-refusal budget:
+
+| | |
+|---|---|
+| **Threshold** | **0.90** |
+| Refuses unanswerable | 77% (17/22) |
+| Refuses answerable (the price) | 4% (2/55) |
+| Youden's J optimum (reference) | 0.90 — agrees |
+
+The 5 out-of-scope questions that still get through are all *plausible fiction*
+— `RRCQuantumResume`, `drx-NeuralInactivityTimer`, `Predictive Buffer Status
+Report`. They reuse real 3GPP vocabulary, so the reranker legitimately finds
+related passages and scores them high. Catching those is precisely the job of
+controls #3 and #4 downstream.
 
 ## Corpus (Release 18)
 
@@ -118,16 +171,43 @@ copy .env.example .env
 
 Full walkthrough, troubleshooting table, and what to expect at each step: [SETUP.md](SETUP.md).
 
-### Run the ingestion pipeline
+### Run the pipeline
+
+Every module runs standalone with `python -m` and has a self-check, so each
+stage can be verified before the next is built on it.
 
 ```powershell
-python -m src.ingest.download --spec 38.331   # one spec first, to prove the plumbing works
+# --- offline: corpus -> index ---
+python -m src.ingest.download --spec 38.331   # one spec first, to prove the plumbing
 python -m src.ingest.download                 # then the full Rel-18 corpus
 python -m src.ingest.convert                  # normalise any .doc -> .docx
-python -m src.ingest.parse_docx                # build the clause-tree JSONL
+python -m src.ingest.parse_docx               # clause-tree JSONL
+python -m src.ingest.chunk                    # must report 0 orphaned conditions
+
+python -m src.index.embedder --self-test      # proves GPU + fp16 + query prefix
+python -m src.index.build --limit 200 --reset # smoke test
+python -m src.index.build --reset             # full run, ~15 min on GPU
+python -m src.index.bm25_store --build
+
+# --- online ---
+python -m src.retrieval.pipeline --query "When does the UE trigger T310?" --explain
+python -m src.generation.answer --query "..."
+python -m src.verification.groundedness --query "..."
+
+uvicorn src.api.main:app --port 8000
+streamlit run src/ui/app.py
+
+# --- evaluation ---
+python -m eval.calibrate                      # fit the relevance-gate threshold
+python -m eval.run_eval --retrieval           # ablation, GPU only, no API calls
+python -m eval.run_eval --answers             # ablation, calls Gemini
 ```
 
-Check `data/raw/manifest.tsv` afterward — every row should say `Rel-18`. If one doesn't, that spec has no Rel-18 version published yet and the downloader fell back to the newest available, which breaks version pinning.
+Two checks that gate the rest: `src.ingest.chunk` must report **0 orphaned
+conditions** before you build an index on it, and every row of
+`data/raw/manifest.tsv` must say `Rel-18`. A row that doesn't means that spec
+has no Rel-18 version published and the downloader fell back to the newest
+available, which silently breaks version pinning.
 
 ## Project layout
 
@@ -139,12 +219,15 @@ rag3gpp/
 │   │   ├── download.py    # version-pinned fetch from 3gpp.org
 │   │   ├── convert.py     # .doc -> .docx via LibreOffice headless
 │   │   └── parse_docx.py  # docx -> clause-tree JSONL
-│   ├── index/              # chunking + ChromaDB/BM25 (planned)
-│   ├── retrieval/          # fusion + reranking (planned)
-│   ├── generation/         # Gemini answer synthesis (planned)
-│   ├── verification/       # NLI grounding checks (planned)
-│   ├── api/                 # FastAPI service (planned)
-│   └── ui/                  # Streamlit front end (planned)
+│   │   └── chunk.py       # clause tree -> chunks, conditions preserved
+│   ├── index/              # bge-m3 embedder, ChromaDB store, BM25, build
+│   ├── retrieval/          # RRF fusion + cross-encoder rerank + gate
+│   ├── generation/         # Gemini answer synthesis, citation validation
+│   ├── verification/       # NLI + LLM-judge grounding checks
+│   ├── llm_retry.py        # backoff for transient Gemini failures
+│   ├── api/                # FastAPI service
+│   └── ui/                 # Streamlit front end
+├── eval/                   # gold set, gate calibration, ablation harness
 ├── data/                    # raw/docx/parsed/chunks/index — gitignored except manifest
 ├── SETUP.md
 └── requirements.txt
@@ -152,4 +235,4 @@ rag3gpp/
 
 ## Tech stack
 
-Python 3.11 · PyTorch (CUDA) · sentence-transformers (`BAAI/bge-m3`) · `bge-reranker-v2-m3` · ChromaDB · rank-bm25 · Gemini 2.5 · cross-encoder NLI · FastAPI · Streamlit
+Python 3.11 · PyTorch (CUDA) · sentence-transformers (`BAAI/bge-m3`) · `bge-reranker-v2-m3` · ChromaDB · rank-bm25 · Gemini 3.5 Flash · cross-encoder NLI · FastAPI · Streamlit

@@ -227,6 +227,17 @@ def should_drop(title: str) -> bool:
     return t in DROP_TITLE_SET or t == "void"
 
 
+# Some clauses keep their heading but carry a placeholder body instead of the
+# title "Void" — 21.905 does this for unused alphabet index letters ("<void>").
+# They are real clauses with zero information; indexing them just gives the
+# retriever near-empty vectors that match nothing useful.
+_VOID_BODY = {"void", "<void>", "(void)", "-", "–"}
+
+
+def is_void_body(text: str) -> bool:
+    return text.strip().lower() in _VOID_BODY
+
+
 def parse_document(path: Path, spec: str, version: str, release: int) -> list[Clause]:
     doc = Document(str(path))
 
@@ -280,7 +291,12 @@ def parse_document(path: Path, spec: str, version: str, release: int) -> list[Cl
             if md:
                 current.add_block("table", md)
 
-    return [c for c in clauses if not should_drop(c.title) and c.full_text.strip()]
+    return [
+        c for c in clauses
+        if not should_drop(c.title)
+        and c.full_text.strip()
+        and not is_void_body(c.full_text)
+    ]
 
 
 # --------------------------------------------------------------------------
@@ -293,10 +309,20 @@ def stem_to_spec(stem: str) -> tuple[str, str, str, int]:
 
 
 def write_jsonl(clauses: list[Clause], meta: dict, out_path: Path) -> None:
+    # A clause_id is NOT unique within a spec. 21.905 (Vocabulary) has an
+    # alphabet index heading "A", "B", "C"... once under Definitions and again
+    # under Abbreviations. The clause_id stays exactly as the document says it
+    # (citations must be truthful), but the UID we index by gets an occurrence
+    # suffix so it can serve as a primary key.
+    seen: dict[str, int] = {}
+
     with open(out_path, "w", encoding="utf-8") as f:
         for i, c in enumerate(clauses):
+            n = seen.get(c.clause_id, 0) + 1
+            seen[c.clause_id] = n
+            uid = f"{meta['stem']}::{c.clause_id}" + (f"#{n}" if n > 1 else "")
             record = {
-                "clause_uid": f"{meta['stem']}::{c.clause_id}",
+                "clause_uid": uid,
                 "spec_id": f"TS {meta['spec']}",
                 "spec": meta["spec"],
                 "version": meta["version"],

@@ -1,0 +1,77 @@
+{"qid": "a001", "question": "What does the UE do when it receives an RRCReconfiguration message?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.3.5.3"}]}
+{"qid": "a002", "question": "What actions does the UE take when T300 expires?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.3.3.7"}]}
+{"qid": "a003", "question": "What does the UE do upon reception of SIB1?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.2.2.4.2"}]}
+{"qid": "a004", "question": "How does the UE handle a SecurityModeCommand message?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.3.4.3"}]}
+{"qid": "a005", "question": "What does the UE do when it receives an RRCSetup message?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.3.3.4"}]}
+{"qid": "a006", "question": "How does a UE request system information on demand?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.2.2.3.3"}]}
+{"qid": "a007", "question": "How is a measurement gap configured in NR RRC?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.5.2.9"}]}
+{"qid": "a008", "question": "What does the UE do for each measObjectId in the measObjectToAddModList?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.5.2.5"}]}
+{"qid": "a009", "question": "What are the RRC states in NR and how does the UE transition between them?", "answerable": true, "gold": [{"spec": "38.331", "clause": "4.2.1"}]}
+{"qid": "a010", "question": "What does the UE do when it receives a Paging message?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.3.2.3"}]}
+{"qid": "a011", "question": "What is the UE required to do on acquiring the MIB?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.2.2.4.1"}]}
+{"qid": "a012", "question": "What happens during reconfiguration with sync?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.3.5.5.2"}]}
+{"qid": "a013", "question": "How does the UE determine whether stored system information is still valid?", "answerable": true, "gold": [{"spec": "38.331", "clause": "5.2.2.2.1"}]}
+{"qid": "a014", "question": "What are the signalling radio bearers defined in NR?", "answerable": true, "gold": [{"spec": "38.331", "clause": "4.2.2"}]}
+{"qid": "a015", "question": "How is the random access procedure initialized in MAC?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.1.1"}]}
+{"qid": "a016", "question": "How does the MAC entity receive and process a Random Access Response?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.1.4"}]}
+{"qid": "a017", "question": "How does contention resolution work in the random access procedure?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.1.5"}]}
+{"qid": "a018", "question": "How does the MAC entity maintain uplink time alignment?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.2"}]}
+{"qid": "a019", "question": "When does the MAC entity trigger a Scheduling Request?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.4.4"}]}
+{"qid": "a020", "question": "When is a Buffer Status Report triggered?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.4.5"}]}
+{"qid": "a021", "question": "When does the UE trigger a Power Headroom Report?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.4.6"}]}
+{"qid": "a022", "question": "How does DRX operation work in NR MAC?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.7"}]}
+{"qid": "a023", "question": "How does the MAC entity select logical channels during uplink grant handling?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.4.3.1.2"}]}
+{"qid": "a024", "question": "How does the HARQ entity operate for downlink assignments?", "answerable": true, "gold": [{"spec": "38.321", "clause": "5.3.2.1"}]}
+{"qid": "a025", "question": "How does cell selection work in NR?", "answerable": true, "gold": [{"spec": "38.300", "clause": "9.2.1.1"}]}
+{"qid": "a026", "question": "How does cell reselection work in NR?", "answerable": true, "gold": [{"spec": "38.300", "clause": "9.2.1.2"}]}
+{"qid": "a027", "question": "What is a RAN-based Notification Area?", "answerable": true, "gold": [{"spec": "38.300", "clause": "9.2.2.3"}]}
+{"qid": "a028", "question": "How does access control work in NG-RAN?", "answerable": true, "gold": [{"spec": "38.300", "clause": "7.4"}]}
+{"qid": "a029", "question": "What is the SS/PBCH block and how is it structured?", "answerable": true, "gold": [{"spec": "38.300", "clause": "5.2.4"}]}
+{"qid": "a030", "question": "How does a UE transition from RRC_INACTIVE to RRC_CONNECTED?", "answerable": true, "gold": [{"spec": "38.300", "clause": "9.2.2.4.1"}]}
+{"qid": "a031", "question": "What is the key hierarchy in 5G security?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.2.1"}]}
+{"qid": "a032", "question": "How does the 5G AKA authentication procedure work?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.1.3.2.0"}]}
+{"qid": "a033", "question": "How are NAS COUNTs handled in 5G security?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.4.5"}]}
+{"qid": "a034", "question": "What is the user plane security policy and how is it applied?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.6.1"}]}
+{"qid": "a035", "question": "How is subscriber privacy protected in 5G?", "answerable": true, "gold": [{"spec": "33.501", "clause": "5.2.5"}]}
+{"qid": "a036", "question": "How does EAP-AKA' authentication work in 5G?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.1.3.1"}]}
+{"qid": "a037", "question": "What are the requirements for RRC integrity protection?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.5.1"}]}
+{"qid": "a038", "question": "How is the initial NAS message protected?", "answerable": true, "gold": [{"spec": "33.501", "clause": "6.4.6"}, {"spec": "24.501", "clause": "4.4.6"}]}
+{"qid": "a039", "question": "What happens during the general registration procedure in 5GS?", "answerable": true, "gold": [{"spec": "23.502", "clause": "4.2.2.2.2"}]}
+{"qid": "a040", "question": "How does the UE triggered Service Request procedure work?", "answerable": true, "gold": [{"spec": "23.502", "clause": "4.2.3.2"}]}
+{"qid": "a041", "question": "What happens during AN Release?", "answerable": true, "gold": [{"spec": "23.502", "clause": "4.2.6"}]}
+{"qid": "a042", "question": "How does network slice-specific authentication and authorization work?", "answerable": true, "gold": [{"spec": "23.502", "clause": "4.2.9.2"}]}
+{"qid": "a043", "question": "What are the 5GMM registration management states?", "answerable": true, "gold": [{"spec": "23.501", "clause": "5.3.2.2.2"}, {"spec": "23.501", "clause": "5.3.2.2.3"}]}
+{"qid": "a044", "question": "How is registration area management performed?", "answerable": true, "gold": [{"spec": "23.501", "clause": "5.3.2.3"}]}
+{"qid": "a045", "question": "How does access control and barring work in the 5G system?", "answerable": true, "gold": [{"spec": "23.501", "clause": "5.2.5"}]}
+{"qid": "a046", "question": "How does the UE determine the access identity and access category for a request?", "answerable": true, "gold": [{"spec": "24.501", "clause": "4.5.2"}]}
+{"qid": "a047", "question": "How are NAS signalling messages ciphered?", "answerable": true, "gold": [{"spec": "24.501", "clause": "4.4.5"}]}
+{"qid": "a048", "question": "What happens when the NAS COUNT wraps around?", "answerable": true, "gold": [{"spec": "24.501", "clause": "4.4.3.5"}]}
+{"qid": "a049", "question": "How does the AMF perform integrity checking of NAS signalling messages?", "answerable": true, "gold": [{"spec": "24.501", "clause": "4.4.4.3"}]}
+{"qid": "a050", "question": "How does RLC status reporting work?", "answerable": true, "gold": [{"spec": "38.322", "clause": "5.3.4"}]}
+{"qid": "a051", "question": "How does RLC handle retransmission in AM?", "answerable": true, "gold": [{"spec": "38.322", "clause": "5.3.2"}]}
+{"qid": "a052", "question": "What does PDCP do when a Data PDU is received from lower layers?", "answerable": true, "gold": [{"spec": "38.323", "clause": "5.2.2.1"}]}
+{"qid": "a053", "question": "How does PDCP entity re-establishment work?", "answerable": true, "gold": [{"spec": "38.323", "clause": "5.1.2"}]}
+{"qid": "a054", "question": "How does PDCP perform ciphering and deciphering?", "answerable": true, "gold": [{"spec": "38.323", "clause": "5.8"}]}
+{"qid": "a055", "question": "How does PDCP integrity protection and verification work?", "answerable": true, "gold": [{"spec": "38.323", "clause": "5.9"}]}
+{"qid": "x001", "question": "What is the best pizza dough recipe for a home oven?", "answerable": false, "category": "off_domain"}
+{"qid": "x002", "question": "Who won the football World Cup in 2018?", "answerable": false, "category": "off_domain"}
+{"qid": "x003", "question": "How do I rebase a branch in git without losing my commits?", "answerable": false, "category": "off_domain"}
+{"qid": "x004", "question": "What is the current stock price of Ericsson?", "answerable": false, "category": "off_domain"}
+{"qid": "x005", "question": "Write a Python function that reverses a linked list.", "answerable": false, "category": "off_domain"}
+{"qid": "x006", "question": "How does the X2 handover procedure work between two LTE eNodeBs?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x007", "question": "What does the O-RAN Alliance specify for the E2 interface?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x008", "question": "How does Wi-Fi 6 OFDMA resource unit allocation work?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x009", "question": "What are the 6G requirements agreed for Release 21?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x010", "question": "How is the GTP-U tunnel endpoint identifier encoded in TS 29.281?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x011", "question": "How does the SGSN handle a routing area update in GPRS?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x012", "question": "What licence fee does 3GPP charge for implementing NR?", "answerable": false, "category": "adjacent_tech"}
+{"qid": "x013", "question": "What does timer T999 control in NR RRC?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x014", "question": "What is the purpose of the RRCQuantumResume message?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x015", "question": "How does the UE handle the securityModeFailureExtended-r18 IE?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x016", "question": "What does clause 5.99.9 of TS 38.331 specify?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x017", "question": "How is the K_gNB_quantum key derived in the 5G key hierarchy?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x018", "question": "When does the MAC entity trigger a Predictive Buffer Status Report?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x019", "question": "What is the maximum value of the drx-NeuralInactivityTimer?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x020", "question": "How does the AMF process a RegistrationRequestUrgent message?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x021", "question": "What are the requirements for the N9bis interface between two UPFs?", "answerable": false, "category": "plausible_fiction"}
+{"qid": "x022", "question": "How does the UE apply the sidelinkQuantumConfig when configured?", "answerable": false, "category": "plausible_fiction"}

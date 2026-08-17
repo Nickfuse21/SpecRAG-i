@@ -1,0 +1,695 @@
+[
+  {
+    "qid": "a001",
+    "question": "What does the UE do when it receives an RRCReconfiguration message?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99853515625,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.8.9.1.8",
+    "top_clause_title": "Reception of an RRCReconfigurationFailureSidelink by the UE"
+  },
+  {
+    "qid": "a002",
+    "question": "What actions does the UE take when T300 expires?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.96826171875,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.3.3.7",
+    "top_clause_title": "T300 expiry"
+  },
+  {
+    "qid": "a003",
+    "question": "What does the UE do upon reception of SIB1?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99658203125,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.2.2.4.2",
+    "top_clause_title": "Actions upon reception of the SIB1"
+  },
+  {
+    "qid": "a004",
+    "question": "How does the UE handle a SecurityModeCommand message?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9970703125,
+    "top_citation": "TS 24.501 v18.13.0, clause 5.4.2.3",
+    "top_clause_title": "NAS security mode command accepted by the UE"
+  },
+  {
+    "qid": "a005",
+    "question": "What does the UE do when it receives an RRCSetup message?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.998046875,
+    "top_citation": "TS 33.501 v18.12.0, clause 6.11",
+    "top_clause_title": "Security handling for RRC connection re-establishment procedure"
+  },
+  {
+    "qid": "a006",
+    "question": "How does a UE request system information on demand?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.734375,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.2.2.3.5",
+    "top_clause_title": "Acquisition of SIB(s) or posSIB(s) in RRC_CONNECTED"
+  },
+  {
+    "qid": "a007",
+    "question": "How is a measurement gap configured in NR RRC?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.98291015625,
+    "top_citation": "TS 38.331 v18.10.0, clause MeasGapConfig",
+    "top_clause_title": "MeasGapConfig"
+  },
+  {
+    "qid": "a008",
+    "question": "What does the UE do for each measObjectId in the measObjectToAddModList?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99462890625,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.8.10.2.5",
+    "top_clause_title": "Sidelink measurement object addition/modification"
+  },
+  {
+    "qid": "a009",
+    "question": "What are the RRC states in NR and how does the UE transition between them?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.69921875,
+    "top_citation": "TS 33.501 v18.12.0, clause 6.8.2.1.1",
+    "top_clause_title": "General"
+  },
+  {
+    "qid": "a010",
+    "question": "What does the UE do when it receives a Paging message?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9931640625,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.3.2.3",
+    "top_clause_title": "Reception of the Paging message by the UE or PagingRecord by the L2 U2N Remote UE"
+  },
+  {
+    "qid": "a011",
+    "question": "What is the UE required to do on acquiring the MIB?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9892578125,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.2.2.4.1",
+    "top_clause_title": "Actions upon reception of the MIB"
+  },
+  {
+    "qid": "a012",
+    "question": "What happens during reconfiguration with sync?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.92724609375,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.3.5.11",
+    "top_clause_title": "Full configuration"
+  },
+  {
+    "qid": "a013",
+    "question": "How does the UE determine whether stored system information is still valid?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.96337890625,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.2.2.2.1",
+    "top_clause_title": "SIB validity"
+  },
+  {
+    "qid": "a014",
+    "question": "What are the signalling radio bearers defined in NR?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.990234375,
+    "top_citation": "TS 38.331 v18.10.0, clause 4.2.2",
+    "top_clause_title": "Signalling radio bearers"
+  },
+  {
+    "qid": "a015",
+    "question": "How is the random access procedure initialized in MAC?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.998046875,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.1.1",
+    "top_clause_title": "Random Access procedure initialization"
+  },
+  {
+    "qid": "a016",
+    "question": "How does the MAC entity receive and process a Random Access Response?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.982421875,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.1.4a",
+    "top_clause_title": "MSGB reception and contention resolution for 2-step RA type"
+  },
+  {
+    "qid": "a017",
+    "question": "How does contention resolution work in the random access procedure?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.92041015625,
+    "top_citation": "TS 38.300 v18.10.0, clause 9.2.6",
+    "top_clause_title": "Random Access Procedure"
+  },
+  {
+    "qid": "a018",
+    "question": "How does the MAC entity maintain uplink time alignment?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.984375,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.2",
+    "top_clause_title": "Maintenance of Uplink Time Alignment"
+  },
+  {
+    "qid": "a019",
+    "question": "When does the MAC entity trigger a Scheduling Request?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9697265625,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.4.8",
+    "top_clause_title": "Timing Advance Reporting"
+  },
+  {
+    "qid": "a020",
+    "question": "When is a Buffer Status Report triggered?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9638671875,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.4.5",
+    "top_clause_title": "Buffer Status Reporting"
+  },
+  {
+    "qid": "a021",
+    "question": "When does the UE trigger a Power Headroom Report?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.98388671875,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.4.6",
+    "top_clause_title": "Power Headroom Reporting"
+  },
+  {
+    "qid": "a022",
+    "question": "How does DRX operation work in NR MAC?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.94140625,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.7",
+    "top_clause_title": "Discontinuous Reception (DRX)"
+  },
+  {
+    "qid": "a023",
+    "question": "How does the MAC entity select logical channels during uplink grant handling?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99755859375,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.4.3.1.2",
+    "top_clause_title": "Selection of logical channels"
+  },
+  {
+    "qid": "a024",
+    "question": "How does the HARQ entity operate for downlink assignments?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99365234375,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.3.2.1",
+    "top_clause_title": "HARQ Entity"
+  },
+  {
+    "qid": "a025",
+    "question": "How does cell selection work in NR?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.98486328125,
+    "top_citation": "TS 38.300 v18.10.0, clause 9.2.1.1",
+    "top_clause_title": "Cell Selection"
+  },
+  {
+    "qid": "a026",
+    "question": "How does cell reselection work in NR?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9716796875,
+    "top_citation": "TS 38.300 v18.10.0, clause 9.2.1.1",
+    "top_clause_title": "Cell Selection"
+  },
+  {
+    "qid": "a027",
+    "question": "What is a RAN-based Notification Area?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9794921875,
+    "top_citation": "TS 38.300 v18.10.0, clause 9.2.2.3",
+    "top_clause_title": "RAN-Based Notification Area"
+  },
+  {
+    "qid": "a028",
+    "question": "How does access control work in NG-RAN?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99365234375,
+    "top_citation": "TS 38.300 v18.10.0, clause 7.4",
+    "top_clause_title": "Access Control"
+  },
+  {
+    "qid": "a029",
+    "question": "What is the SS/PBCH block and how is it structured?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.966796875,
+    "top_citation": "TS 38.300 v18.10.0, clause 5.2.4",
+    "top_clause_title": "Synchronization signal and PBCH block"
+  },
+  {
+    "qid": "a030",
+    "question": "How does a UE transition from RRC_INACTIVE to RRC_CONNECTED?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99951171875,
+    "top_citation": "TS 38.401 v18.7.0, clause 8.9.6.2",
+    "top_clause_title": "RRC Inactive to other states"
+  },
+  {
+    "qid": "a031",
+    "question": "What is the key hierarchy in 5G security?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.95166015625,
+    "top_citation": "TS 33.501 v18.12.0, clause 7B.7.3",
+    "top_clause_title": "Authentication for AUN3 devices supporting 5G key hierarchy"
+  },
+  {
+    "qid": "a032",
+    "question": "How does the 5G AKA authentication procedure work?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9990234375,
+    "top_citation": "TS 33.501 v18.12.0, clause 6.1.3.2.0",
+    "top_clause_title": "5G AKA"
+  },
+  {
+    "qid": "a033",
+    "question": "How are NAS COUNTs handled in 5G security?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99658203125,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.4.3.1",
+    "top_clause_title": "General"
+  },
+  {
+    "qid": "a034",
+    "question": "What is the user plane security policy and how is it applied?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.939453125,
+    "top_citation": "TS 23.501 v18.12.0, clause 5.10.3",
+    "top_clause_title": "PDU Session User Plane Security"
+  },
+  {
+    "qid": "a035",
+    "question": "How is subscriber privacy protected in 5G?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.974609375,
+    "top_citation": "TS 33.501 v18.12.0, clause 6.12.1",
+    "top_clause_title": "Subscription permanent identifier"
+  },
+  {
+    "qid": "a036",
+    "question": "How does EAP-AKA' authentication work in 5G?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9951171875,
+    "top_citation": "TS 33.501 v18.12.0, clause 6.1.3.1",
+    "top_clause_title": "Authentication procedure for EAP-AKA'"
+  },
+  {
+    "qid": "a037",
+    "question": "What are the requirements for RRC integrity protection?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9794921875,
+    "top_citation": "TS 38.323 v18.5.0, clause 5.9",
+    "top_clause_title": "Integrity protection and verification"
+  },
+  {
+    "qid": "a038",
+    "question": "How is the initial NAS message protected?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9990234375,
+    "top_citation": "TS 33.501 v18.12.0, clause 6.4.6",
+    "top_clause_title": "Protection of initial NAS message"
+  },
+  {
+    "qid": "a039",
+    "question": "What happens during the general registration procedure in 5GS?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9345703125,
+    "top_citation": "TS 23.502 v18.14.0, clause 4.13.3.1",
+    "top_clause_title": "Registration procedures for SMS over NAS"
+  },
+  {
+    "qid": "a040",
+    "question": "How does the UE triggered Service Request procedure work?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99609375,
+    "top_citation": "TS 23.502 v18.14.0, clause 4.2.3.2",
+    "top_clause_title": "UE Triggered Service Request"
+  },
+  {
+    "qid": "a041",
+    "question": "What happens during AN Release?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.91455078125,
+    "top_citation": "TS 23.502 v18.14.0, clause 4.2.6",
+    "top_clause_title": "AN Release"
+  },
+  {
+    "qid": "a042",
+    "question": "How does network slice-specific authentication and authorization work?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9990234375,
+    "top_citation": "TS 24.501 v18.13.0, clause 5.4.7.1",
+    "top_clause_title": "General"
+  },
+  {
+    "qid": "a043",
+    "question": "What are the 5GMM registration management states?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.94677734375,
+    "top_citation": "TS 24.501 v18.13.0, clause 5.1.3.1",
+    "top_clause_title": "General"
+  },
+  {
+    "qid": "a044",
+    "question": "How is registration area management performed?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.990234375,
+    "top_citation": "TS 23.501 v18.12.0, clause 5.3.2.3",
+    "top_clause_title": "Registration Area management"
+  },
+  {
+    "qid": "a045",
+    "question": "How does access control and barring work in the 5G system?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.91796875,
+    "top_citation": "TS 23.501 v18.12.0, clause 5.1",
+    "top_clause_title": "General"
+  },
+  {
+    "qid": "a046",
+    "question": "How does the UE determine the access identity and access category for a request?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.998046875,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.5.2A",
+    "top_clause_title": "Determination of the access identities and access category associated with a request for access for UEs operating in SNPN access operation mode over 3GPP access"
+  },
+  {
+    "qid": "a047",
+    "question": "How are NAS signalling messages ciphered?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99560546875,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.4.5",
+    "top_clause_title": "Ciphering of NAS signalling messages"
+  },
+  {
+    "qid": "a048",
+    "question": "What happens when the NAS COUNT wraps around?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.98388671875,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.4.3.5",
+    "top_clause_title": "NAS COUNT wrap around"
+  },
+  {
+    "qid": "a049",
+    "question": "How does the AMF perform integrity checking of NAS signalling messages?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99365234375,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.4.2.5",
+    "top_clause_title": "Establishment of secure exchange of NAS messages"
+  },
+  {
+    "qid": "a050",
+    "question": "How does RLC status reporting work?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9755859375,
+    "top_citation": "TS 38.322 v18.2.0, clause 5.3.4",
+    "top_clause_title": "Status reporting"
+  },
+  {
+    "qid": "a051",
+    "question": "How does RLC handle retransmission in AM?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.94873046875,
+    "top_citation": "TS 38.322 v18.2.0, clause 4.2.1.3.2",
+    "top_clause_title": "Transmitting side"
+  },
+  {
+    "qid": "a052",
+    "question": "What does PDCP do when a Data PDU is received from lower layers?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99560546875,
+    "top_citation": "TS 38.323 v18.5.0, clause 5.1.2",
+    "top_clause_title": "PDCP entity re-establishment"
+  },
+  {
+    "qid": "a053",
+    "question": "How does PDCP entity re-establishment work?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.9951171875,
+    "top_citation": "TS 38.323 v18.5.0, clause 5.1.2",
+    "top_clause_title": "PDCP entity re-establishment"
+  },
+  {
+    "qid": "a054",
+    "question": "How does PDCP perform ciphering and deciphering?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.998046875,
+    "top_citation": "TS 38.323 v18.5.0, clause 5.8",
+    "top_clause_title": "Ciphering and deciphering"
+  },
+  {
+    "qid": "a055",
+    "question": "How does PDCP integrity protection and verification work?",
+    "answerable": true,
+    "category": "answerable",
+    "top_score": 0.99658203125,
+    "top_citation": "TS 38.323 v18.5.0, clause 5.9",
+    "top_clause_title": "Integrity protection and verification"
+  },
+  {
+    "qid": "x001",
+    "question": "What is the best pizza dough recipe for a home oven?",
+    "answerable": false,
+    "category": "off_domain",
+    "top_score": 0.001979827880859375,
+    "top_citation": "TS 38.211 v18.9.0, clause 5.2.2.2",
+    "top_clause_title": "Base sequences of length less than 36"
+  },
+  {
+    "qid": "x002",
+    "question": "Who won the football World Cup in 2018?",
+    "answerable": false,
+    "category": "off_domain",
+    "top_score": 0.0535888671875,
+    "top_citation": "TS 21.905 v18.0.0, clause C",
+    "top_clause_title": "C"
+  },
+  {
+    "qid": "x003",
+    "question": "How do I rebase a branch in git without losing my commits?",
+    "answerable": false,
+    "category": "off_domain",
+    "top_score": 0.0026531219482421875,
+    "top_citation": "TS 38.331 v18.10.0, clause A.4.2",
+    "top_clause_title": "Critical extension of messages and fields"
+  },
+  {
+    "qid": "x004",
+    "question": "What is the current stock price of Ericsson?",
+    "answerable": false,
+    "category": "off_domain",
+    "top_score": 0.0384521484375,
+    "top_citation": "TS 38.321 v18.10.0, clause 6.1.3.1",
+    "top_clause_title": "Buffer Status Report MAC CEs"
+  },
+  {
+    "qid": "x005",
+    "question": "Write a Python function that reverses a linked list.",
+    "answerable": false,
+    "category": "off_domain",
+    "top_score": 0.092529296875,
+    "top_citation": "TS 38.331 v18.10.0, clause RRCRelease",
+    "top_clause_title": "RRCRelease"
+  },
+  {
+    "qid": "x006",
+    "question": "How does the X2 handover procedure work between two LTE eNodeBs?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.451904296875,
+    "top_citation": "TS 33.501 v18.12.0, clause 8.3.2",
+    "top_clause_title": "Procedure"
+  },
+  {
+    "qid": "x007",
+    "question": "What does the O-RAN Alliance specify for the E2 interface?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.00579833984375,
+    "top_citation": "TS 23.501 v18.12.0, clause 5.31.13",
+    "top_clause_title": "Paging for Enhanced Coverage"
+  },
+  {
+    "qid": "x008",
+    "question": "How does Wi-Fi 6 OFDMA resource unit allocation work?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.1912841796875,
+    "top_citation": "TS 38.212 v18.8.0, clause 7.3.1.1.2",
+    "top_clause_title": "Format 0_1"
+  },
+  {
+    "qid": "x009",
+    "question": "What are the 6G requirements agreed for Release 21?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.0053863525390625,
+    "top_citation": "TS 23.501 v18.12.0, clause K.1",
+    "top_clause_title": "Standardized port and user plane node management information"
+  },
+  {
+    "qid": "x010",
+    "question": "How is the GTP-U tunnel endpoint identifier encoded in TS 29.281?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.54833984375,
+    "top_citation": "TS 38.401 v18.7.0, clause 3.2",
+    "top_clause_title": "Abbreviations"
+  },
+  {
+    "qid": "x011",
+    "question": "How does the SGSN handle a routing area update in GPRS?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.1805419921875,
+    "top_citation": "TS 23.501 v18.12.0, clause 5.17.2.4",
+    "top_clause_title": "Mobility between 5GS and GERAN/UTRAN"
+  },
+  {
+    "qid": "x012",
+    "question": "What licence fee does 3GPP charge for implementing NR?",
+    "answerable": false,
+    "category": "adjacent_tech",
+    "top_score": 0.0582275390625,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.14.2",
+    "top_clause_title": "Stand-alone non-public network (SNPN)"
+  },
+  {
+    "qid": "x013",
+    "question": "What does timer T999 control in NR RRC?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.187744140625,
+    "top_citation": "TS 38.331 v18.10.0, clause 7.1.1",
+    "top_clause_title": "Timers (Informative)"
+  },
+  {
+    "qid": "x014",
+    "question": "What is the purpose of the RRCQuantumResume message?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.9560546875,
+    "top_citation": "TS 38.331 v18.10.0, clause RRCResume",
+    "top_clause_title": "RRCResume"
+  },
+  {
+    "qid": "x015",
+    "question": "How does the UE handle the securityModeFailureExtended-r18 IE?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.67236328125,
+    "top_citation": "TS 24.501 v18.13.0, clause 4.4.6",
+    "top_clause_title": "Protection of initial NAS signalling messages"
+  },
+  {
+    "qid": "x016",
+    "question": "What does clause 5.99.9 of TS 38.331 specify?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.77294921875,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.2.2.3.3a",
+    "top_clause_title": "Request for on demand positioning system information"
+  },
+  {
+    "qid": "x017",
+    "question": "How is the K_gNB_quantum key derived in the 5G key hierarchy?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.95458984375,
+    "top_citation": "TS 38.300 v18.10.0, clause 13.1",
+    "top_clause_title": "Overview and Principles"
+  },
+  {
+    "qid": "x018",
+    "question": "When does the MAC entity trigger a Predictive Buffer Status Report?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.9755859375,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.4.7",
+    "top_clause_title": "Pre-emptive Buffer Status Reporting"
+  },
+  {
+    "qid": "x019",
+    "question": "What is the maximum value of the drx-NeuralInactivityTimer?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.94384765625,
+    "top_citation": "TS 38.321 v18.10.0, clause 5.7",
+    "top_clause_title": "Discontinuous Reception (DRX)"
+  },
+  {
+    "qid": "x020",
+    "question": "How does the AMF process a RegistrationRequestUrgent message?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.9833984375,
+    "top_citation": "TS 24.501 v18.13.0, clause 5.5.1.2.4",
+    "top_clause_title": "Initial registration accepted by the network"
+  },
+  {
+    "qid": "x021",
+    "question": "What are the requirements for the N9bis interface between two UPFs?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.69677734375,
+    "top_citation": "TS 23.502 v18.14.0, clause 4.9.1.2.3",
+    "top_clause_title": "Xn based inter NG-RAN handover with insertion of intermediate UPF"
+  },
+  {
+    "qid": "x022",
+    "question": "How does the UE apply the sidelinkQuantumConfig when configured?",
+    "answerable": false,
+    "category": "plausible_fiction",
+    "top_score": 0.896484375,
+    "top_citation": "TS 38.331 v18.10.0, clause 5.8.18.3",
+    "top_clause_title": "NR sidelink positioning transmission"
+  }
+]

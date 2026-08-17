@@ -22,3 +22,6 @@ data/index/*
 .vscode/
 .idea/
 .DS_Store
+
+# eval run artifacts that depend on a live API — regenerate, do not trust a stale copy
+eval/answer_details.json

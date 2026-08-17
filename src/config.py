@@ -98,8 +98,22 @@ DROP_CLAUSE_TITLES = {
 # --------------------------------------------------------------------------
 EMBED_MODEL = "BAAI/bge-m3"
 EMBED_DIM = 1024
-EMBED_BATCH = 8           # lower this if you hit CUDA OOM
+EMBED_BATCH = 16          # lower this if you hit CUDA OOM
 EMBED_MAX_LEN = 2048      # bge-m3 supports 8192; our chunks are far below
+
+# Half precision. On this box it is not an optimisation, it is what makes the
+# run finish: bge-m3 is ~2.27 GB in fp32, and a 4 GB laptop GPU with a desktop
+# session already on it has ~2 GB free. The weights do not fit, and Windows
+# WDDM does not fail — it silently spills them to system RAM and streams them
+# back over PCIe on every forward pass. That is a correct-but-useless 1 chunk/s,
+# i.e. ~2.7 hours for this corpus. In fp16 the weights are ~1.14 GB, they stay
+# resident, and the same run takes minutes.
+#
+# The accuracy cost is nil for our purposes: we only ever compare these vectors
+# by cosine similarity and normalise them straight afterwards, so fp16 rounding
+# lands far below the gap between a relevant and an irrelevant passage.
+# `build.py --verify-precision` measures that gap instead of assuming it.
+EMBED_FP16 = True         # set False on CPU — fp16 on CPU is slower, not faster
 
 # BGE models were trained with an instruction prefix on QUERIES ONLY.
 # Getting this wrong silently costs several points of recall.
@@ -107,6 +121,10 @@ QUERY_PREFIX = "Represent this sentence for searching relevant passages: "
 
 RERANK_MODEL = "BAAI/bge-reranker-v2-m3"
 RERANK_BATCH = 8
+# Same reasoning as EMBED_FP16, same model family and size. This one matters
+# for latency rather than for the build: the reranker runs on every live query,
+# so it sits directly in the user's response time.
+RERANK_FP16 = True
 
 DEVICE: Literal["cuda", "cpu"] = "cuda"   # set to "cpu" if no GPU available
 
@@ -120,18 +138,39 @@ RRF_K = 60          # damps the top of each list so cross-retriever agreement wi
 FUSED_TOP_K = 20    # reranking budget
 FINAL_TOP_K = 6     # context budget + "lost in the middle"
 
-# CONTROL #2 — the relevance gate. bge-reranker-v2-m3 emits raw logits,
-# roughly -10..+10. Below this, we REFUSE WITHOUT CALLING THE LLM.
-# Calibrate on Day 3: plot max-score distributions for answerable vs
-# out-of-scope questions and cut where they separate.
-RERANK_SCORE_THRESHOLD = 0.0   # PLACEHOLDER — must be calibrated
+# CONTROL #2 — the relevance gate. Below this, we REFUSE WITHOUT CALLING THE
+# LLM. bge-reranker-v2-m3 scores are SIGMOID outputs in [0, 1] (see the note in
+# src/retrieval/rerank.py) — not the signed logits this line originally assumed.
+# The old placeholder value of 0.0 sat below the entire range, so `best < 0.0`
+# was never true and the gate never fired once.
+#
+# Fitted by eval/calibrate.py, not chosen: it maximises the correct-refusal
+# rate on out-of-scope questions subject to a 10% false-refusal budget on
+# answerable ones. Re-run that script after any change to the retriever, the
+# reranker, or EMBED/RERANK_FP16 — all of them move this number.
+RERANK_SCORE_THRESHOLD = 0.90  # set by eval/calibrate.py — see eval/calibration.json
 
 
 # --------------------------------------------------------------------------
 # Generation
 # --------------------------------------------------------------------------
-GEN_MODEL = "gemini-2.5-flash"
-UTIL_MODEL = "gemini-2.5-flash-lite"   # query rewriting + verification judge
+# Pinned version names, never the `gemini-flash-latest` aliases. GEN_TEMPERATURE
+# is 0 so that eval numbers are reproducible, and an alias that silently
+# re-points at a new model underneath would throw that away — the ablation
+# table would stop being a comparison between our own arms and start being a
+# comparison against whatever Google shipped that week.
+#
+# 2.5-flash was the original choice and now returns 404 for keys that had not
+# already used it ("no longer available to new users"), which is worth knowing
+# before a demo: these names expire. Check with `client.models.list()`.
+GEN_MODEL = "gemini-3.5-flash"
+UTIL_MODEL = "gemini-3.5-flash-lite"   # query rewriting + verification judge
+
+# Transient-failure budget for the hosted model (see src/llm_retry.py). Four
+# attempts with a 2s base backs off 2s, 4s, 8s — enough to ride out a 503
+# "high demand" spike without stalling a live request for a visible age.
+LLM_MAX_ATTEMPTS = 4
+LLM_BACKOFF_BASE = 2.0
 
 GEN_TEMPERATURE = 0.0   # not optional: sampling a lower-probability token in a
                         # factual answer means sampling a less likely FACT.
@@ -143,6 +182,11 @@ GEN_MAX_OUTPUT_TOKENS = 2048
 # Verification  —  CONTROL #4
 # --------------------------------------------------------------------------
 NLI_MODEL = "cross-encoder/nli-deberta-v3-base"
+# Verification runs with the embedder and the reranker already resident, so
+# this is the model that decides whether all three fit. In fp32 the three
+# together reserve ~4.35 GB on a 4 GB card and the driver starts spilling to
+# system RAM again; in fp16 they fit with headroom.
+NLI_FP16 = True
 
 GROUNDED_THRESHOLD = 0.90    # >= this  -> return as-is, badge "Grounded"
 PARTIAL_THRESHOLD = 0.60     # >= this  -> strip unsupported claims, "Partial"
