@@ -30,18 +30,26 @@ Using both and taking the MINIMUM is deliberate. This is a safety check, and
 for a safety check disagreement should mean caution, not a coin flip. A
 claim only counts as grounded if neither judge doubts it.
 
-The abstention policy
----------------------
-    mean claim score >= GROUNDED_THRESHOLD (0.90)  -> return as-is
-    mean claim score >= PARTIAL_THRESHOLD  (0.60)  -> drop the weak claims,
-                                                       return the rest, say so
-    below that                                     -> REFUSE
+The abstention policy — per claim, never on the average
+------------------------------------------------------
+    every claim >= GROUNDED_THRESHOLD (0.90)  -> "grounded", return as-is
+    at least one claim >= PARTIAL_THRESHOLD (0.60)
+                                              -> "partial": drop the claims
+                                                 below the bar, serve the rest,
+                                                 and say which were dropped
+    no claim clears the bar, or any claim is CONTRADICTED
+                                              -> REFUSE
 
-The middle band is the interesting one. An answer where four claims are
-solid and one is invented is not "wrong" — it is mostly right with a
-poisoned sentence in it, and the honest move is to serve the four and say
-the fifth could not be verified. Throwing away good grounded content
-because of one bad claim trains users to route around the system.
+An answer where four claims are solid and one is invented is not "wrong" — it
+is mostly right with a poisoned sentence in it, and the honest move is to serve
+the four and say the fifth could not be verified. Throwing away good grounded
+content because of one bad claim trains users to route around the system.
+
+The first implementation gated that partial path on the MEAN claim score, which
+defeated it: entailment scores here are sharply bimodal (p25 0.05, median 0.89),
+so the mean lands in the empty middle and describes no claim that exists. It
+measured 18% coverage — refusing four answerable questions in five, including
+answers with nine well-supported claims. See verify() for the numbers.
 """
 from __future__ import annotations
 
@@ -209,7 +217,8 @@ class Verifier:
         if not verdicts:
             return Verdict("refused", 0.0, [], [], [])
 
-        mean = sum(v.score for v in verdicts) / len(verdicts)
+        scores = [v.score for v in verdicts]
+        mean = sum(scores) / len(scores)
 
         # A single contradicted claim is disqualifying on its own. Averages
         # hide it: four solid claims plus one that the source directly
@@ -218,17 +227,48 @@ class Verifier:
             return Verdict("refused", mean, verdicts, [],
                            list(range(len(verdicts))))
 
-        if mean >= GROUNDED_THRESHOLD:
-            return Verdict("grounded", mean, verdicts, list(range(len(verdicts))), [])
+        # The decision is PER CLAIM, not on the mean.
+        #
+        # The first version of this gated the whole answer on the mean, and it
+        # measured 18% coverage on the eval set — it refused four answerable
+        # questions in five. The reason is that entailment scores here are
+        # sharply bimodal (measured: p25 = 0.05, median = 0.89, p75 = 0.99).
+        # A claim is either clearly stated by its passage or clearly not; almost
+        # nothing lands in between. So the MEAN of those scores falls in the
+        # empty middle and describes no claim that exists. One real answer scored
+        # claims [0.87, 0, 0, 0, 0.98, 0, 0, 0, 0.81, 0.3, 0.97, 0.92, 0.98,
+        # 0.99, 0.99, 0.93] -> mean 0.55 -> refused, discarding nine
+        # well-supported claims because six others scored zero.
+        #
+        # That directly contradicted this module's own stated policy: serve the
+        # claims that hold, drop the ones that do not, and say so. The mean gate
+        # meant the partial path could only fire when the answer was already
+        # mostly fine, which is exactly when it was least needed.
+        #
+        # This is not a weakening. Every claim that reaches the user still has to
+        # clear PARTIAL_THRESHOLD on its own — the same bar as before. What
+        # changed is that failing claims no longer take passing ones down with
+        # them. Refusal is now reserved for the cases that genuinely warrant it:
+        # a contradiction, or nothing surviving at all.
+        kept = [i for i, v in enumerate(verdicts) if v.score >= PARTIAL_THRESHOLD]
+        dropped = [i for i in range(len(verdicts)) if i not in kept]
 
-        if mean >= PARTIAL_THRESHOLD:
-            kept = [i for i, v in enumerate(verdicts) if v.score >= PARTIAL_THRESHOLD]
-            dropped = [i for i in range(len(verdicts)) if i not in kept]
-            if not kept:
-                return Verdict("refused", mean, verdicts, [], list(range(len(verdicts))))
-            return Verdict("partial", mean, verdicts, kept, dropped)
+        if not kept:
+            return Verdict("refused", mean, verdicts, [], list(range(len(verdicts))))
 
-        return Verdict("refused", mean, verdicts, [], list(range(len(verdicts))))
+        # `min`, not `mean`, for the grounded badge: "grounded" is a claim about
+        # every sentence in the answer, so the weakest one decides it. A mean
+        # would let one unsupported claim hide behind several strong ones, which
+        # is the failure this whole module exists to prevent.
+        kept_scores = [scores[i] for i in kept]
+        label = "grounded" if (not dropped and min(kept_scores) >= GROUNDED_THRESHOLD) \
+            else "partial"
+
+        # Report the score over what is actually served, not over claims we just
+        # threw away — otherwise a "partial" answer carries the score of the
+        # version the user never sees.
+        return Verdict(label, sum(kept_scores) / len(kept_scores),
+                       verdicts, kept, dropped)
 
 
 def apply(answer, verdict: Verdict):

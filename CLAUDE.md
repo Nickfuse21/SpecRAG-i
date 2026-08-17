@@ -90,9 +90,13 @@ question -> query understanding -> dense + BM25 -> RRF -> cross-encoder rerank
 
 4. **Groundedness verification** (`src/verification/groundedness.py`).
    Per-claim entailment against the claim's own cited passages, scored by
-   two judges, taking the minimum. Thresholds 0.90 / 0.60 →
-   grounded / partial / refuse. One contradicted claim refuses outright
-   regardless of the mean.
+   two judges, taking the minimum. The abstention decision is **per claim, not
+   on the mean**: claims below `PARTIAL_THRESHOLD` are dropped and the rest
+   served ("partial"); refusal is reserved for no claim clearing the bar, or any
+   claim being contradicted. Gating on the mean was a bug — entailment scores
+   are bimodal, so the mean describes no claim that exists, and it measured 18%
+   coverage. See "What's left" for the remaining over-refusal, which is the NLI
+   model's ceiling rather than a threshold.
 
 ## Invariants that must not be broken
 
@@ -166,13 +170,25 @@ DIFFERENT model on purpose — a judge should not be grading its own generator.
 
 ## What's left
 
-1. **Answer ablation** (`python -m eval.run_eval --answers`) — retrieval arms
-   are done and in the README; the gate/verification arms need a clean run.
-2. **README results section** — fill in the answer table once (1) lands.
-3. **Demo** — `python -m src.demo` walks four questions, one per stopping point.
-4. Optional: the 2 answerable questions the gate now refuses are the price of
-   the 10% budget. If that matters, re-run `eval/calibrate.py
-   --max-false-refusal 0.02` and take the weaker gate knowingly.
+1. **Verification over-refuses** — arm E coverage is 43.6%. Not a threshold
+   problem: per-claim NLI scores are bimodal (p25 0.05, median 0.89), so on the
+   answers it refuses, no claim clears the bar at any sane cut. `nli-deberta-v3-base`
+   is out of distribution on 3GPP legalese. Two known consequences, both written
+   up in README: (a) `--judge both` makes it WORSE, since the two-judge rule
+   takes the minimum; (b) a single NLI false-positive CONTRADICTED claim vetoes
+   an answer whose other seven claims score 0.97-1.00. The fix is a judge that
+   can read this register, not looser thresholds — deliberately not tuned away.
+2. **The gate's measured value is zero on this eval set.** Control #3's
+   `answerable: false` field already refuses all 22 out-of-scope questions, so
+   arm C hallucinates 0% with the gate off. Do not claim the gate produced the
+   headline number. Its defensible value: no LLM call, and no dependence on the
+   model cooperating.
+3. **Gold set is self-authored from clause titles**, so Recall@6 0.855 is an
+   optimistic ceiling. Questions written from clause bodies by someone who has
+   not seen the titles would be the honest next version.
+4. Optional: re-run `eval/calibrate.py --max-false-refusal 0.02` for a weaker,
+   higher-coverage gate if the 2 refused answerable questions matter.
+
 
 ## Run order
 

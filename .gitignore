@@ -25,3 +25,7 @@ data/index/*
 
 # eval run artifacts that depend on a live API — regenerate, do not trust a stale copy
 eval/answer_details.json
+
+# regenerated on every eval run; the authoritative table lives in README.md
+eval/results.json
+eval/results.md

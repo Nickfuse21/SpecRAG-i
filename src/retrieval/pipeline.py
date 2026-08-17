@@ -237,8 +237,34 @@ class Retriever:
         if self.reranker is None:
             return Result(candidates[:k], refused=False, plan=plan)
 
-        top = self.reranker.rerank(question, candidates, k)
-        best = top[0]["rerank_score"]
+        # Score every candidate, then decide the ORDER separately.
+        #
+        # `rerank(..., k)` sorts by score and truncates, which silently undid
+        # the pinpoint step above: the exact clause the user named was pushed to
+        # the front of `candidates`, and then re-sorted straight back down. A
+        # clause fetched by id is often a poor semantic match for the question
+        # that asked for it — "What does clause 5.3.3.7 say?" shares almost no
+        # wording with the clause's own text — so it scored ~0.4 against
+        # passages that merely CITE 5.3.3.7 and lost. The observable symptom was
+        # the model correctly reporting that the passages did not contain the
+        # requested clause, which reads like a retrieval miss and is actually a
+        # ranking bug one line downstream.
+        scored = self.reranker.rerank(question, candidates, len(candidates))
+
+        if pinned:
+            pin_ids = [h["chunk_id"] for h in pinned]   # already in part order
+            pin_set = set(pin_ids)
+            by_id = {h["chunk_id"]: h for h in scored}
+            head = [by_id[c] for c in pin_ids if c in by_id]
+            tail = [h for h in scored if h["chunk_id"] not in pin_set]
+            top = (head + tail)[:k]
+        else:
+            top = scored[:k]
+
+        # The gate compares against the strongest evidence we found, not against
+        # whatever happens to be first — for a pinpoint query that is the named
+        # clause, whose score is low by nature.
+        best = max(h["rerank_score"] for h in top)
 
         # ---- CONTROL #2: the relevance gate --------------------------
         # A pinpoint lookup is exempt: the user named the clause, so

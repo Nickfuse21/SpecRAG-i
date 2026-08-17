@@ -67,7 +67,7 @@ and BM25.
 | API (FastAPI) | `src/api/main.py` | ✅ Done |
 | UI (Streamlit) | `src/ui/app.py` | ✅ Done |
 | Gate calibration | `eval/calibrate.py` | ✅ Done — threshold fitted |
-| Ablation study | `eval/run_eval.py` | 🟡 Retrieval done; answer arms pending |
+| Ablation study | `eval/run_eval.py` | ✅ Done — retrieval + answer arms |
 
 ## Results
 
@@ -97,6 +97,73 @@ Read honestly, this table says three things, and only the first is flattering:
   not ranking — it is that it produces the score the relevance gate needs. There
   is no gate without it.
 
+### Answer ablation (55 answerable + 22 unanswerable)
+
+These three arms retrieve identically — arm C's retrieval — and differ only in
+what they refuse. A non-refused answer to an unanswerable question is a
+hallucination by construction, so that column needs no human labelling.
+
+| Arm | Hallucination rate | Coverage | Gold-citation rate | Faithfulness |
+|---|---|---|---|---|
+| C — no gate, no verification | **0.0%** | 96.4% | 84.9% | — |
+| D — + relevance gate | **0.0%** | 85.5% | 87.2% | — |
+| E — + groundedness verification | **0.0%** | 43.6% | 83.3% | 0.933 |
+
+**The headline result is real but it is not the one the design predicted.**
+Hallucination rate is 0% across all three arms — including arm C, with both the
+gate and verification switched off. The gate did not cause that number, and
+saying otherwise would misread the table.
+
+What actually catches the out-of-scope questions is **control #3**: the
+generation schema has an explicit `answerable: false` field, and the model uses
+it on all 22. Giving refusal its own output slot — rather than making it compete
+with a fluent guess in the same slot — turns out to do the heavy lifting here.
+
+That leaves the gate and the verifier costing coverage for no measured safety
+gain on this set: 96.4% → 85.5% → 43.6%. The honest reading of each:
+
+- **The gate (arm D)** buys two things the table cannot show. It refuses without
+  spending an LLM call, and it does not depend on the model cooperating — if a
+  future model ignored the schema, control #3 would fail silently and the gate
+  would not. It is insurance, and this eval set never files a claim. It also
+  raised gold-citation from 84.9% to 87.2%, so the questions it dropped were
+  ones the retriever was weak on anyway.
+- **The verifier (arm E)** is over-refusing, and the cause is the NLI model, not
+  the policy. `nli-deberta-v3-base` was trained on short everyday sentence pairs
+  and is out of distribution on 900-token clauses of 3GPP legalese; on the
+  answers it refuses, *no* claim clears the bar. Because per-claim scores are
+  sharply bimodal (p25 0.05, median 0.89), lowering `PARTIAL_THRESHOLD` would not
+  recover them — there is nothing in the middle to recover. Note also that
+  `--judge both` would refuse *more*, not less: the two-judge rule takes the
+  minimum, so adding a judge can only lower a score.
+
+  Faithfulness of 0.933 on what it does serve says the surviving claims are
+  solidly grounded. The fix is a verifier that can read this register — an
+  NLI model fine-tuned on technical text, or the LLM judge alone rather than as
+  a minimum — not a threshold tweak.
+
+  A concrete instance, from `python -m src.demo` on clause 5.3.3.7: thirteen
+  claims, seven scoring 0.97–1.00, one flagged CONTRADICTED at 0.00 — and the
+  policy "any contradicted claim refuses outright" discarded the whole answer.
+  The flagged claim (`the UE shall set locationInfo to include
+  commonLocationInfo`) is not actually contradicted by its passage; it is an NLI
+  false positive of exactly the kind this model produces on legalese. So one
+  unreliable signal currently holds veto power over seven reliable ones.
+
+  That policy has **deliberately been left as it is.** Loosening a safety control
+  because it is inconvenient is how these systems rot, and the contradiction veto
+  is correct when the judge is trustworthy. The defensible change is to make the
+  veto conditional on the LLM judge — which can read this register — rather than
+  on the NLI model, and that needs validating on a larger set than a deadline
+  allowed. It is written down here rather than quietly tuned away.
+
+An earlier version of arm E measured **18.2%** coverage. That was a bug, not a
+result: `verify()` gated the whole answer on the MEAN claim score, and with a
+bimodal distribution the mean lands in the empty middle. One answer scored claims
+`[0.87, 0, 0, 0, 0.98, 0, 0, 0, 0.81, 0.3, 0.97, 0.92, 0.98, 0.99, 0.99, 0.93]`
+→ mean 0.55 → refused, discarding nine well-supported claims. The policy is now
+per-claim, which is what the module always documented.
+
 ### Gate calibration
 
 `RERANK_SCORE_THRESHOLD` was a placeholder of `0.0`. Calibration found that the
@@ -118,6 +185,46 @@ The 5 out-of-scope questions that still get through are all *plausible fiction*
 Report`. They reuse real 3GPP vocabulary, so the reranker legitimately finds
 related passages and scores them high. Catching those is precisely the job of
 controls #3 and #4 downstream.
+
+### How the gold set was built, and where it flatters the numbers
+
+`eval/gold.jsonl` is 55 answerable questions with verified clause labels plus 22
+unanswerable ones. Every gold clause was checked to exist in the chunked corpus
+before use — a label pointing at a clause that isn't there makes recall silently
+wrong rather than visibly broken.
+
+Three caveats a reader should apply to the numbers above:
+
+- **The questions were written from clause titles**, so their wording overlaps
+  the target more than a real engineer's phrasing would. Recall@6 of 0.855 is
+  therefore an optimistic ceiling, not a field estimate. The honest fix is
+  questions written from clause *bodies* by someone who has not seen the titles.
+- **55 questions is small.** A single question is worth 1.8 points of recall, so
+  differences under ~4 points between arms are inside the noise. The hybrid gain
+  (+3.7) is at the edge of that; the rerank gain (+0.0 recall) is not
+  distinguishable from zero.
+- **The unanswerable set is deliberately tiered** (off-domain, adjacent-tech,
+  plausible fiction) rather than sampled from real traffic. That makes the
+  correct-refusal rate a measure of *which kinds* of out-of-scope question the
+  gate catches, which is more useful here than a single blended percentage — but
+  it is not a traffic-weighted number.
+
+### `temperature=0` is not reproducibility
+
+Worth stating because the code comments claim temperature 0 is what makes these
+numbers reproducible, and that turns out to be only half true.
+
+The **retrieval** arms reproduced bit-exactly across three separate runs
+(0.818 / 0.945 / 0.588 / 0.635 for arm A every time) — everything there is local
+and deterministic. The **answer** arms did not: arm C's coverage came out 0.909
+on one run and 0.964 on another, with identical code and configuration. That is
+three questions changing their mind about whether the passages answered them.
+
+Hosted LLM inference is not bit-reproducible even at temperature 0 — batching,
+kernel selection and server-side changes all move it. So temperature 0 removes
+*sampling* variance, which is worth having, but it does not give a fixed number.
+Any single answer-arm figure below should be read with roughly ±3pts of run-to-run
+noise, and a difference between two arms smaller than that is not a finding.
 
 ## Corpus (Release 18)
 
